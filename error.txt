@@ -1,0 +1,130 @@
+Traceback (most recent call last):
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 147, in execute
+    self._adapt_connection._handle_exception(error)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 298, in _handle_exception
+    raise error
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 129, in execute
+    self.await_(_cursor.execute(operation, parameters))
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiosqlite/cursor.py", line 48, in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiosqlite/cursor.py", line 40, in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiosqlite/core.py", line 132, in _execute
+    return await future
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiosqlite/core.py", line 115, in run
+    result = function()
+sqlite3.OperationalError: table orders has no column named type_content
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 49, in __call__
+    return await handler(event, data)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/event/telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/router.py", line 142, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/router.py", line 137, in _wrapped
+    return await self._propagate_event(
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/router.py", line 170, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/router.py", line 142, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/router.py", line 137, in _wrapped
+    return await self._propagate_event(
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/router.py", line 162, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/event/telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/handlers/handler_main.py", line 208, in check_pay
+    await rq.add_order(data=data_order)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/database/requests.py", line 209, in add_order
+    await session.commit()
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/ext/asyncio/session.py", line 1009, in commit
+    await greenlet_spawn(self.sync_session.commit)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 203, in greenlet_spawn
+    result = context.switch(value)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2028, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 1313, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 1288, in _prepare_impl
+    self.session.flush()
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 4352, in flush
+    self._flush(objects)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 4487, in _flush
+    with util.safe_reraise():
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 4448, in _flush
+    flush_context.execute()
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/orm/persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 147, in execute
+    self._adapt_connection._handle_exception(error)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 298, in _handle_exception
+    raise error
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 129, in execute
+    self.await_(_cursor.execute(operation, parameters))
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiosqlite/cursor.py", line 48, in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiosqlite/cursor.py", line 40, in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiosqlite/core.py", line 132, in _execute
+    return await future
+  File "/Users/antonponomarev/PycharmProjects/public_instagram/venv/lib/python3.10/site-packages/aiosqlite/core.py", line 115, in run
+    result = function()
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table orders has no column named type_content
+[SQL: INSERT INTO orders (status, data_create, data_public, tg_client, link_resource, tg_executor, about_me, type_public, type_content, content, caption) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('payment', '10/39/37/10/08/2024', 'None', 843554518, 'admin', '0', 'О себе ещё раз', 'reels', 'photo', 'AgACAgIAAxkBAAIB32a3GR7soykOLV0M9uM3GlALgRFrAAIi3DEbiEvBSfHT0-4inkl7AQADAgADeQADNQQ', 'Наша игра')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)

@@ -67,6 +67,6 @@ def keyboards_attach_resources(list_resources: list) -> InlineKeyboardMarkup:
 def keyboard_confirm_select_resource() -> None:
     logging.info("keyboard_confirm_select_resource")
     button_1 = InlineKeyboardButton(text='Подтвердить', callback_data=f'confirm_select_resource')
-    button_2 = InlineKeyboardButton(text='Назад', url=f'back_select_resource')
+    button_2 = InlineKeyboardButton(text='Назад', callback_data=f'back_select_resource')
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button_2], [button_1]],)
     return keyboard

@@ -102,16 +102,17 @@ async def attach_resource_user(callback: CallbackQuery, state: FSMContext):
     resource_id = int(callback.data.split('_')[-1])
     await state.update_data(resource_id=resource_id)
     info_resource = await rq.get_resource_id(resource_id=resource_id)
-    await callback.message.answer(text=f'Вы выбрали.'
-                                       f'<i>Название ресурса:</i> {info_resource.name_resource}\n'
-                                       f'<i>Ссылка на ресурс:</i> {info_resource.link_resource}\n\n'
-                                       f'Подтвердить?',
-                                  reply_markup=kb.keyboard_confirm_select_resource())
+    await callback.message.edit_text(text=f'Вы выбрали.'
+                                          f'<i>Название ресурса:</i> {info_resource.name_resource}\n'
+                                          f'<i>Ссылка на ресурс:</i> {info_resource.link_resource}\n\n'
+                                          f'Подтвердить?',
+                                     reply_markup=kb.keyboard_confirm_select_resource(),
+                                     parse_mode='html')
     await callback.answer()
 
 
 @router.callback_query(F.data == 'confirm_select_resource')
-async def confirm_select_resource(callback: CallbackQuery, state: FSMContext):
+async def confirm_select_resource(callback: CallbackQuery, state: FSMContext, bot: Bot):
     """
     Подтверждение выбранного ресурса для прикрепления его к профилю пользователя
     :param callback:
@@ -124,6 +125,8 @@ async def confirm_select_resource(callback: CallbackQuery, state: FSMContext):
     resource_info = await rq.get_resource_id(resource_id=resource_id)
     await rq.set_user_link(tg_id=callback.message.chat.id,
                            link=resource_info.link_resource)
+    await bot.delete_message(chat_id=callback.message.chat.id,
+                             message_id=callback.message.message_id)
     await callback.message.answer(text='Ресурс успешно прикреплен к вашему профилю.\n'
                                        'Выберите раздел',
                                   reply_markup=kb.keyboards_main_user())
@@ -140,8 +143,8 @@ async def back_select_resource(callback: CallbackQuery, state: FSMContext):
     """
     logging.info(f'back_select_resource {callback.message.chat.id}')
     resources = await rq.get_resources()
-    await callback.message.answer(text='Выберите ресурс для прикрепления его к вашему профилю',
-                                  reply_markup=kb.keyboards_attach_resources(list_resources=resources))
+    await callback.message.edit_text(text='Выберите ресурс для прикрепления его к вашему профилю',
+                                     reply_markup=kb.keyboards_attach_resources(list_resources=resources))
     await state.clear()
     await callback.answer()
 

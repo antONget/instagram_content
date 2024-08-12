@@ -40,11 +40,10 @@ async def admin_mode_chapter(message: Message) -> None:
 
 
 @router.callback_query(F.data == 'get_content')
-async def admin_mode_select_content(callback: CallbackQuery, state: FSMContext):
+async def admin_mode_select_content(callback: CallbackQuery):
     """
     Выбор категории контента
     :param callback:
-    :param state:
     :return:
     """
     logging.info(f'admin_mode_get_content: {callback.message.chat.id}')
@@ -55,6 +54,11 @@ async def admin_mode_select_content(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("type_content_"))
 async def get_content_for_public(callback: CallbackQuery):
+    """
+    Получаем тип контента для предоставления на публикацию
+    :param callback:
+    :return:
+    """
     logging.info(f'get_content_for_public')
     type_public = callback.data.split('_')[-1]
     list_order = await rq.get_orders_type_content(type_public=type_public)
@@ -86,6 +90,12 @@ async def get_content_for_public(callback: CallbackQuery):
 
 @router.callback_query(F.data.startswith("published_"))
 async def set_order_complete(callback: CallbackQuery, bot: Bot):
+    """
+    Указываем что контент уже опубликован
+    :param callback:
+    :param bot:
+    :return:
+    """
     logging.info(f'set_order_complete')
     await bot.delete_message(chat_id=callback.message.chat.id,
                              message_id=callback.message.message_id)
@@ -100,6 +110,11 @@ async def set_order_complete(callback: CallbackQuery, bot: Bot):
 
 @router.callback_query(F.data.startswith("type_proposal_"))
 async def get_proposal(callback: CallbackQuery):
+    """
+    Выгрузка предложений для просмотра
+    :param callback:
+    :return:
+    """
     logging.info(f'get_proposal')
     type_proposal = callback.data.split('_')[-1]
     list_proposal = await rq.get_proposal_type_status(type_proposal=type_proposal)
@@ -111,6 +126,12 @@ async def get_proposal(callback: CallbackQuery):
 
 @router.callback_query(F.data.startswith("introduction_"))
 async def set_introduction(callback: CallbackQuery, bot: Bot):
+    """
+    Помечаем что предложение просмотрено
+    :param callback:
+    :param bot:
+    :return:
+    """
     logging.info(f'set_introduction')
     proposal_id = int(callback.data.split('_')[-1])
     await rq.set_proposal_status(proposal_id=proposal_id)
@@ -122,6 +143,11 @@ async def set_introduction(callback: CallbackQuery, bot: Bot):
 
 @router.callback_query(F.data == 'my_ref_link')
 async def my_refer_link(callback: CallbackQuery) -> None:
+    """
+    Получаем меню реферальных ссылок [Сгененрировать, Статистика, Мои ссылки]
+    :param callback:
+    :return:
+    """
     logging.info(f'my_refer_link: {callback.message.chat.id}')
     await callback.message.answer(text='Выберите раздел',
                                   reply_markup=kb.keyboard_refer())
@@ -130,6 +156,11 @@ async def my_refer_link(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data.startswith("generate_token"))
 async def process_generate_token(callback: CallbackQuery):
+    """
+    Генерация токена для выбранного ресурса
+    :param callback:
+    :return:
+    """
     logging.info(f'process_generate_token')
     resources = [resource for resource in await rq.get_resources()]
     await callback.message.answer(text='Выберите ресурс для ссылки',
@@ -139,6 +170,11 @@ async def process_generate_token(callback: CallbackQuery):
 
 @router.callback_query(F.data.startswith("my_link"))
 async def process_my_link(callback: CallbackQuery):
+    """
+    Вывод сформированных ссылок к ресурсам
+    :param callback:
+    :return:
+    """
     logging.info(f'process_my_link')
     resources = await rq.get_resources()
     text = '<b>Ваши ссылки к ресурсам:</b>\n\n'
@@ -154,6 +190,11 @@ async def process_my_link(callback: CallbackQuery):
 
 @router.callback_query(F.data.startswith("resource_"))
 async def process_select_resource(callback: CallbackQuery):
+    """
+    Сгенерированная реферальная ссылка для ресурса
+    :param callback:
+    :return:
+    """
     logging.info(f'process_select_resource')
     resource_id = int(callback.data.split('_')[-1])
     info_resource = await rq.get_resource_id(resource_id=resource_id)
@@ -166,6 +207,11 @@ async def process_select_resource(callback: CallbackQuery):
 
 @router.callback_query(F.data == "statistic")
 async def process_get_statistic(callback: CallbackQuery):
+    """
+    Сатистистика переходов и оплаты контента
+    :param callback:
+    :return:
+    """
     logging.info(f'process_get_statistic')
     orders = [order for order in await rq.get_orders()]
     users = [user for user in await rq.get_all_users()]
@@ -203,7 +249,12 @@ async def process_get_statistic(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == 'change_resource')
-async def admin_mode_change_resource(callback: CallbackQuery, state: FSMContext):
+async def admin_mode_change_resource(callback: CallbackQuery):
+    """
+    Меню добавления и удаления ресурсов
+    :param callback:
+    :return:
+    """
     logging.info(f'admin_mode_change_resource: {callback.message.chat.id}')
     await callback.message.answer(text='Здесь вы можете добавить ресурс или удалить его ',
                                   reply_markup=kb.keyboard_select_action_resource())
@@ -211,7 +262,12 @@ async def admin_mode_change_resource(callback: CallbackQuery, state: FSMContext)
 
 
 @router.callback_query(F.data == 'action_resource_delete')
-async def admin_mode_resource_delete(callback: CallbackQuery, state: FSMContext):
+async def admin_mode_resource_delete(callback: CallbackQuery):
+    """
+    Выбор ресурса для его удаления
+    :param callback:
+    :return:
+    """
     logging.info(f'admin_mode_resource_delete: {callback.message.chat.id}')
     list_resources = [resource for resource in await rq.get_resources()]
     await callback.message.answer(text='Выберите ресурс для удаления',
@@ -220,7 +276,12 @@ async def admin_mode_resource_delete(callback: CallbackQuery, state: FSMContext)
 
 
 @router.callback_query(F.data.startswith('delete_resource_'))
-async def admin_mode_resource_delete(callback: CallbackQuery, state: FSMContext):
+async def admin_mode_resource_delete(callback: CallbackQuery):
+    """
+    Удаление выбранного ресурса
+    :param callback:
+    :return:
+    """
     logging.info(f'admin_mode_resource_delete: {callback.message.chat.id}')
     resource_id = int(callback.data.split('_')[-1])
     info_resource = await rq.get_resource_id(resource_id=resource_id)
@@ -229,14 +290,26 @@ async def admin_mode_resource_delete(callback: CallbackQuery, state: FSMContext)
 
 
 @router.callback_query(F.data == 'action_resource_add')
-async def admin_mode_resource_delete(callback: CallbackQuery, state: FSMContext):
-    logging.info(f'admin_mode_resource_delete: {callback.message.chat.id}')
+async def admin_mode_resource_add(callback: CallbackQuery, state: FSMContext):
+    """
+    Добавление ресурса
+    :param callback:
+    :param state:
+    :return:
+    """
+    logging.info(f'admin_mode_resource_add: {callback.message.chat.id}')
     await callback.message.answer(text='пришлите ссылку на ресурс')
     await state.set_state(OrderPersonal.link_resource)
 
 
 @router.message(StateFilter(OrderPersonal.link_resource), F.text)
 async def admin_mode_get_link_resource(message: Message, state: FSMContext):
+    """
+    Добавление ссылки к ресурсу
+    :param message:
+    :param state:
+    :return:
+    """
     logging.info(f'admin_mode_get_link_resource: {message.chat.id}')
     link_resource = message.text
     await state.update_data(link_resource=link_resource)
@@ -246,6 +319,12 @@ async def admin_mode_get_link_resource(message: Message, state: FSMContext):
 
 @router.message(StateFilter(OrderPersonal.name_resource), F.text)
 async def admin_mode_add_resource(message: Message, state: FSMContext):
+    """
+    Добавление название к ресурсу и добавления в БД
+    :param message:
+    :param state:
+    :return:
+    """
     logging.info(f'admin_mode_add_resource: {message.chat.id}')
     name_resource = message.text
     data = await state.get_data()

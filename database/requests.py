@@ -89,6 +89,21 @@ async def get_all_users() -> list[User]:
         return users
 
 
+async def set_user_link(tg_id: int, link: str) -> None:
+    """
+    Обновляем ссылку ресурса для пользователя перешедшего по прямой ссылке
+    :param tg_id:
+    :param link:
+    :return:
+    """
+    logging.info(f'set_user_link')
+    async with async_session() as session:
+        user = await session.scalar(select(User).where(User.tg_id == tg_id))
+        if user:
+            user.link_resource = link
+            await session.commit()
+
+
 """RESOURCE"""
 
 

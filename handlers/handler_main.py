@@ -13,7 +13,6 @@ from services.payments import create_payment, check_payment
 
 from datetime import datetime
 import logging
-import random
 
 router = Router()
 config: Config = load_config()
@@ -33,6 +32,7 @@ async def process_start_command(message: Message, state: FSMContext, command: Co
     :param message:
     :param state:
     :param command:
+    :param bot:
     :return:
     """
     logging.info(f"process_start_command {message.chat.id}")
@@ -74,8 +74,6 @@ async def process_start_command(message: Message, state: FSMContext, command: Co
             await rq.add_user_admin(data=data)
         # не админ
         else:
-            await message.answer('Вы перешли по прямой ссылке. Для того чтобы заказать размещение контента'
-                                 ' на определенном ресурсе, перейдите по ссылке размещенном в нем')
             await bot.send_message(chat_id=config.tg_bot.support_id,
                                    text=f'Пользователь @{message.from_user.username}/{message.chat.id}'
                                         f' перешел по прямой ссылке')
@@ -86,6 +84,66 @@ async def process_start_command(message: Message, state: FSMContext, command: Co
             data = {"tg_id": message.chat.id,
                     "username": username}
             await rq.add_user(data=data, token='None')
+            resources = await rq.get_resources()
+            await message.answer(text='Вы перешли по прямой ссылке. Выберите ресурс для размещения на нем вашего'
+                                      ' контента',
+                                 reply_markup=kb.keyboards_attach_resources(list_resources=resources))
+
+
+@router.callback_query(F.data.startswith('attach_resource_'))
+async def attach_resource_user(callback: CallbackQuery, state: FSMContext):
+    """
+    Выбор пользователем перешедшим в бот по прямой ссылке ресурса
+    :param callback:
+    :param state:
+    :return:
+    """
+    logging.info(f"attach_resource_user {callback.message.chat.id}")
+    resource_id = int(callback.data.split('_')[-1])
+    await state.update_data(resource_id=resource_id)
+    info_resource = await rq.get_resource_id(resource_id=resource_id)
+    await callback.message.answer(text=f'Вы выбрали.'
+                                       f'<i>Название ресурса:</i> {info_resource.name_resource}\n'
+                                       f'<i>Ссылка на ресурс:</i> {info_resource.link_resource}\n\n'
+                                       f'Подтвердить?',
+                                  reply_markup=kb.keyboard_confirm_select_resource())
+    await callback.answer()
+
+
+@router.callback_query(F.data == 'confirm_select_resource')
+async def confirm_select_resource(callback: CallbackQuery, state: FSMContext):
+    """
+    Подтверждение выбранного ресурса для прикрепления его к профилю пользователя
+    :param callback:
+    :param state:
+    :return:
+    """
+    logging.info(f'confirm_select_resource {callback.message.chat.id}')
+    data = await state.get_data()
+    resource_id = data['resource_id']
+    resource_info = await rq.get_resource_id(resource_id=resource_id)
+    await rq.set_user_link(tg_id=callback.message.chat.id,
+                           link=resource_info.link_resource)
+    await callback.message.answer(text='Ресурс успешно прикреплен к вашему профилю.\n'
+                                       'Выберите раздел',
+                                  reply_markup=kb.keyboards_main_user())
+    await callback.answer()
+
+
+@router.callback_query(F.data == 'back_select_resource')
+async def back_select_resource(callback: CallbackQuery, state: FSMContext):
+    """
+    Омена добавления к профилю пользователя выбранного ресурса
+    :param callback:
+    :param state:
+    :return:
+    """
+    logging.info(f'back_select_resource {callback.message.chat.id}')
+    resources = await rq.get_resources()
+    await callback.message.answer(text='Выберите ресурс для прикрепления его к вашему профилю',
+                                  reply_markup=kb.keyboards_attach_resources(list_resources=resources))
+    await state.clear()
+    await callback.answer()
 
 
 @router.message(or_f(F.text == 'Бартер', F.text == 'Реклама'))
@@ -96,7 +154,7 @@ async def get_proposal(message: Message, state: FSMContext) -> None:
     :param state:
     :return:
     """
-    logging.info(f'add_task {message.chat.id}')
+    logging.info(f'get_proposal {message.chat.id}')
     await message.answer(text=f'Напишите ваше предложение')
     await state.update_data(proposal=message.text)
     await state.set_state(Stage.proposal)
@@ -111,6 +169,7 @@ async def send_proposal(message: Message, state: FSMContext, bot: Bot):
     :param bot:
     :return:
     """
+    logging.info(f'send_proposal {message.chat.id}')
     await message.answer(text='ваше предложение отправлено менеджеру')
     data = await state.get_data()
     proposal = data['proposal']
@@ -136,14 +195,13 @@ async def send_proposal(message: Message, state: FSMContext, bot: Bot):
 
 
 @router.message(F.text == "Тех. поддержка")
-async def get_proposal(message: Message, state: FSMContext) -> None:
+async def support(message: Message) -> None:
     """
     Сообщаем кому задать вопрос
     :param message:
-    :param state:
     :return:
     """
-    logging.info(f'add_task {message.chat.id}')
+    logging.info(f'support {message.chat.id}')
     await message.answer(text=f'Если возникли вопросы или сложности при работе с ботом, то можете обратиться'
                               f' к {config.tg_bot.support_username}')
 
@@ -156,7 +214,7 @@ async def request_self(message: Message, state: FSMContext) -> None:
     :param state:
     :return:
     """
-    logging.info(f'add_task {message.chat.id}')
+    logging.info(f'request_self {message.chat.id}')
     if message.text == 'Публикация':
         await state.update_data(type_public=rq.OrderType.public)
     elif message.text == 'Reels':
@@ -168,7 +226,14 @@ async def request_self(message: Message, state: FSMContext) -> None:
 
 
 @router.message(StateFilter(Stage.about_me), F.text)
-async def request_content(message: Message, state: FSMContext):
+async def request_content_about_me(message: Message, state: FSMContext):
+    """
+    Получаем сообщение пользователя с рассказом о себе
+    :param message:
+    :param state:
+    :return:
+    """
+    logging.info(f'request_content_about_me {message.chat.id}')
     about_me = message.text
     await state.update_data(about_me=about_me)
     await message.answer(text=f'Пришлите контент для публикации (фото, текст или видео)')
@@ -176,7 +241,14 @@ async def request_content(message: Message, state: FSMContext):
 
 
 @router.message(StateFilter(Stage.content), or_f(F.text, F.photo, F.video))
-async def request_content(message: Message, state: FSMContext):
+async def request_content_photo_text(message: Message, state: FSMContext):
+    """
+    Получаем от пользователя контент для публикации
+    :param message:
+    :param state:
+    :return:
+    """
+    logging.info(f'request_content_photo_text {message.chat.id}')
     if message.text:
         content = message.html_text
         caption = 'None'
@@ -199,6 +271,13 @@ async def request_content(message: Message, state: FSMContext):
 
 @router.message(StateFilter(Stage.personal))
 async def request_pay(message: Message, state: FSMContext):
+    """
+    Запрос оплаты
+    :param message:
+    :param state:
+    :return:
+    """
+    logging.info(f'request_pay {message.chat.id}')
     personal = message.text
     await state.update_data(personal=personal)
     payment_url, payment_id = create_payment(amount='10', chat_id=message.chat.id)
@@ -209,6 +288,14 @@ async def request_pay(message: Message, state: FSMContext):
 
 @router.callback_query(F.data.startswith('payment_'))
 async def check_pay(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    """
+    Проверка оплаты
+    :param callback:
+    :param state:
+    :param bot:
+    :return:
+    """
+    logging.info(f'check_pay {callback.message.chat.id}')
     payment_id = callback.data.split('_')[1]
     result = check_payment(payment_id=payment_id)
     if result == 'succeeded':

@@ -60,7 +60,9 @@ def keyboard_refer() -> InlineKeyboardMarkup:
                                     callback_data=f'generate_token')
     button_2 = InlineKeyboardButton(text=f'Статистика по ссылкам',
                                     callback_data=f'statistic')
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button_1], [button_2]])
+    button_3 = InlineKeyboardButton(text=f'Мои ссылки',
+                                    callback_data=f'my_link')
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button_1], [button_2], [button_3]])
     return keyboard
 
 

@@ -137,7 +137,7 @@ async def get_resource_link(link: str) -> Resource:
         return await session.scalar(select(Resource).where(Resource.link_resource == link))
 
 
-async def get_resources() -> Resource:
+async def get_resources() -> list[Resource]:
     """
     Получаем ресурсы
     :return:
@@ -234,7 +234,7 @@ async def get_order_id(order_id: int) -> Order:
         return orders
 
 
-async def get_orders_link(link: str) -> Order:
+async def get_orders_link(link: str) -> list[Order]:
     """
     Получаем заказы по ссылке
     :param link:
@@ -310,7 +310,7 @@ async def add_proposal(data: dict) -> None:
         await session.commit()
 
 
-async def get_proposal_type_status(type_proposal: str) -> User:
+async def get_proposal_type_status(type_proposal: str) -> list[Proposal]:
     """
     Получаем информацию по пользователю
     :param type_proposal:

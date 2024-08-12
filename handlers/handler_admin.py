@@ -137,6 +137,21 @@ async def process_generate_token(callback: CallbackQuery):
     await callback.answer()
 
 
+@router.callback_query(F.data.startswith("my_link"))
+async def process_my_link(callback: CallbackQuery):
+    logging.info(f'process_my_link')
+    resources = await rq.get_resources()
+    text = '<b>Ваши ссылки к ресурсам:</b>\n\n'
+    for resource in resources:
+        text += f'<i>Название ресурса:</i> {resource.name_resource}\n' \
+                f'<i>Сcылка на ресурс:</i> {resource.link_resource}\n' \
+                f'<i>Ссылка бота на ресурс:</i> ' \
+                f'<code>https://t.me/meetuprus_bot?start={resource.token_resource}</code>\n\n'
+    await callback.message.answer(text=text,
+                                  parse_mode='html')
+    await callback.answer()
+
+
 @router.callback_query(F.data.startswith("resource_"))
 async def process_select_resource(callback: CallbackQuery):
     logging.info(f'process_select_resource')
@@ -154,25 +169,34 @@ async def process_get_statistic(callback: CallbackQuery):
     logging.info(f'process_get_statistic')
     orders = [order for order in await rq.get_orders()]
     users = [user for user in await rq.get_all_users()]
+    resources = [resource for resource in await rq.get_resources()]
+    # формируем словарь по списку пользователей
     statistic = {}
+    for resource in resources:
+        # ключ ссылка на ресурс
+        resource = resource.link_resource
+        if resource not in statistic.keys():
+            statistic[resource] = []
     for user in users:
+        # ключ ссылка на ресурс
         resource = user.link_resource
         if resource not in statistic.keys():
             statistic[resource] = [user.tg_id]
         else:
             statistic[resource].append(user.tg_id)
-    print(statistic)
-    text = 'Количество пользователей запустивших бота из ресурса:\n'
+
+    text = '<b>Количество пользователей запустивших бота:</b>\n\n'
     for resource, list_client in statistic.items():
-        print(resource, list_client)
         info_resource = await rq.get_resource_link(link=resource)
         if info_resource:
-            text += f'<b>{info_resource.name_resource}:</b> {len(list_client)}\n'
+            text += f'<i>Название ресурса:</i> {info_resource.name_resource}\n' \
+                    f'<i>Сcылка на ресурс:</i> {info_resource.link_resource}\n' \
+                    f'<i>Количество уникальных пользователей:</i> {len(list_client)}\n'
         else:
             continue
-        text += f'Количество пользователей оплативших единоразово контент: ' \
+        text += f'<i>Количество пользователей оплативших единоразово контент:</i> ' \
                 f'{len(set(await rq.get_orders_link(link=resource)))}\n'
-        text += f'Количество пользователей оплативших размещение контента несколько раз:' \
+        text += f'<i>Количество пользователей оплативших размещение контента несколько раз:</i>' \
                 f' {len(await rq.get_orders_link(link=resource)) - len(set(await rq.get_orders_link(link=resource)))}\n\n'
     await callback.message.answer(text=text,
                                   parse_mode='html')

@@ -38,9 +38,14 @@ async def process_start_command(message: Message, state: FSMContext, command: Co
     logging.info(f"process_start_command {message.chat.id}")
     await state.set_state(default_state)
     args = command.args
+    # переход по ссылке
     if args:
+        if message.from_user.username:
+            username = message.from_user.username
+        else:
+            username = 'None'
         data = {"tg_id": message.chat.id,
-                "username": message.from_user.username}
+                "username": username}
         user = await rq.add_user(data=data, token=args)
         if not user:
             await bot.send_message(chat_id=config.tg_bot.support_id,
@@ -52,19 +57,35 @@ async def process_start_command(message: Message, state: FSMContext, command: Co
             else:
                 await message.answer(text=f'Приветственное сообщение',
                                      reply_markup=kb.keyboards_main_user())
+    # переход без ссылки
     else:
+        # админ
         if await check_super_admin(telegram_id=message.chat.id):
             await message.answer(text=f'Приветственное сообщение',
                                  reply_markup=kb.keyboards_main_admin())
+            if message.from_user.username:
+                username = message.from_user.username
+            else:
+                username = 'None'
             data = {"tg_id": message.chat.id,
-                    "username": message.from_user.username,
+                    "username": username,
                     "link_resource": "admin",
                     "link_personal": "admin"}
             await rq.add_user_admin(data=data)
+        # не админ
         else:
+            await message.answer('Вы перешли по прямой ссылке. Для того чтобы заказать размещение контента'
+                                 ' на определенном ресурсе, перейдите по ссылке размещенном в нем')
             await bot.send_message(chat_id=config.tg_bot.support_id,
                                    text=f'Пользователь @{message.from_user.username}/{message.chat.id}'
                                         f' перешел по прямой ссылке')
+            if message.from_user.username:
+                username = message.from_user.username
+            else:
+                username = 'None'
+            data = {"tg_id": message.chat.id,
+                    "username": username}
+            await rq.add_user(data=data, token='None')
 
 
 @router.message(or_f(F.text == 'Бартер', F.text == 'Реклама'))

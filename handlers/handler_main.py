@@ -284,7 +284,7 @@ async def request_pay(message: Message, state: FSMContext):
     personal = message.text
     await state.update_data(personal=personal)
     data = await state.get_data()
-    type_public = await data['type_public']
+    type_public = data['type_public']
     if type_public == rq.OrderType.public:
         amount = "350"
     elif type_public == rq.OrderType.reels:

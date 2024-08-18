@@ -42,10 +42,10 @@ def keyboards_main_user() -> ReplyKeyboardMarkup:
     return keyboard
 
 
-def keyboard_payment(payment_url: str, payment_id: int) -> None:
+def keyboard_payment(payment_url: str, payment_id: int, amount: str) -> None:
     logging.info("keyboard_select_period_sales")
     button_1 = InlineKeyboardButton(text='Проверить', callback_data=f'payment_{payment_id}')
-    button_2 = InlineKeyboardButton(text='Оплатить', url=f'{payment_url}')
+    button_2 = InlineKeyboardButton(text=f'Оплатить {amount} руб.', url=f'{payment_url}')
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button_2], [button_1]],)
     return keyboard
 

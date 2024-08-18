@@ -283,7 +283,15 @@ async def request_pay(message: Message, state: FSMContext):
     logging.info(f'request_pay {message.chat.id}')
     personal = message.text
     await state.update_data(personal=personal)
-    payment_url, payment_id = create_payment(amount='10', chat_id=message.chat.id)
+    data = await state.get_data()
+    type_public = await data['type_public']
+    if type_public == rq.OrderType.public:
+        amount = "350"
+    elif type_public == rq.OrderType.reels:
+        amount = "500"
+    elif type_public == rq.OrderType.stories:
+        amount = "300"
+    payment_url, payment_id = create_payment(amount=amount, chat_id=message.chat.id)
     await message.answer(text=f'Оплатите размещение контента',
                          reply_markup=kb.keyboard_payment(payment_url=payment_url, payment_id=payment_id))
     await state.set_state(default_state)

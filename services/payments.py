@@ -20,7 +20,7 @@ def create_payment(amount: str, chat_id: int):
         },
         "confirmation": {
             "type": "redirect",
-            "return_url": "https://t.me/OazisRemont_bot"
+            "return_url": "https://t.me/meetuprus_bot"
         },
         "capture": True,
         "meta_data": {

@@ -8,25 +8,38 @@ yookassa.Configuration.account_id = config.tg_bot.yookassa_id
 yookassa.Configuration.secret_key = config.tg_bot.yookassa_key
 
 
-def create_payment(amount: str, chat_id: int):
+def create_payment(amount: str, chat_id: int, content: str):
     id_key = str(uuid.uuid4())
     payment = Payment.create({
         "amount": {
             "value": amount,
             "currency": "RUB"
         },
-        "paymnet_method_data": {
-            "type": "bank_card"
-        },
+        "capture": True,
         "confirmation": {
             "type": "redirect",
             "return_url": "https://t.me/meetuprus_bot"
         },
-        "capture": True,
+        "description": 'Стоимость выполнения заявки...',
         "meta_data": {
-            "chat_id": chat_id
+            "order_id": str(chat_id)
         },
-        "description": 'Стоимость выполнения заявки...'
+        "receipt": {
+            "customer": {
+                "email": "email@yandex.ru"
+            },
+            "items": [
+                {
+                    "description": content,
+                    "quantity": 1,
+                    "amount": {
+                        "value": amount,
+                        "currency": "RUB"
+                    },
+                    "vat_code": 1
+                },
+            ]
+        },
     }, id_key)
     return payment.confirmation.confirmation_url, payment.id
 

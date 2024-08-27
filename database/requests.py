@@ -104,6 +104,21 @@ async def set_user_link(tg_id: int, link: str) -> None:
             await session.commit()
 
 
+async def set_user_link_personal(tg_id: int, link_personal: str) -> None:
+    """
+    Обновляем ссылку персональную ссылку пользователя
+    :param tg_id:
+    :param link_personal:
+    :return:
+    """
+    logging.info(f'set_user_link_personal')
+    async with async_session() as session:
+        user = await session.scalar(select(User).where(User.tg_id == tg_id))
+        if user:
+            user.link_personal = link_personal
+            await session.commit()
+
+
 """RESOURCE"""
 
 

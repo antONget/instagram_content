@@ -278,12 +278,18 @@ async def request_content_photo_text(message: Message, state: FSMContext):
         return
     elif message.photo:
         content = message.photo[-1].file_id
-        caption = message.caption
+        if message.caption:
+            caption = message.caption
+        else:
+            caption = 'None'
         await state.update_data(caption=caption)
         await state.update_data(type_content=rq.OrderContent.photo)
     elif message.video:
         content = message.video.file_id
-        caption = message.caption
+        if message.caption:
+            caption = message.caption
+        else:
+            caption = 'None'
         await state.update_data(caption=caption)
         await state.update_data(type_content=rq.OrderContent.video)
     await state.update_data(content=content)

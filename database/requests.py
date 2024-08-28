@@ -8,7 +8,7 @@ import logging
 """USER"""
 
 
-async def add_user(data: dict, token: str) -> bool:
+async def add_user(data: dict, token: str) -> bool | str:
     """
     Добавляем нового пользователя если его еще нет в БД
     :param data:
@@ -18,22 +18,37 @@ async def add_user(data: dict, token: str) -> bool:
     logging.info(f'add_user')
     async with async_session() as session:
         user = await session.scalar(select(User).where(User.tg_id == data['tg_id']))
+        # если пользователя нет в базе
         if not user:
+            # получаем токен на ресурс по которому он перешел
             resource = await get_resource_token(token=token)
             if resource:
+                # получаем ссылку на ресурс
                 link_resource = resource.link_resource
-                if not await session.scalar(select(User).where(User.tg_id == data['tg_id'],
-                                                               User.link_resource == link_resource)):
+                # если пользователь в БД с таким ресурсом не существует, то мы обновляем его ресурс
+                user_bd = await session.scalar(select(User).where(User.tg_id == data['tg_id'],
+                                                                  User.link_resource == link_resource))
+                if not user_bd:
                     data["link_resource"] = link_resource
                     session.add(User(**data))
                     await session.commit()
-                    return True
+                    return 'change_link_resource'
+                # иначе если пользователь снова перешел по этой же ссылке
+                elif user_bd:
+                    return 'user_alredy_in_bd'
                 else:
                     return False
+            # если переход по прямой ссылке
             else:
+                data["link_resource"] = '/start'
+                session.add(User(**data))
+                await session.commit()
                 return False
+        # если пользователь уже БД
         else:
-            resource = await get_resource_token(data['token'])
+            # получаем ресурс по токену
+            resource = await get_resource_token(token)
+            # если ресурс есть обновляем ссылку
             if resource:
                 user.link_resource = await resource.link_resource
             else:

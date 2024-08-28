@@ -40,17 +40,30 @@ async def process_start_command(message: Message, state: FSMContext, command: Co
     args = command.args
     # переход по ссылке
     if args:
+        # если у пользователя есть username
         if message.from_user.username:
             username = message.from_user.username
         else:
             username = 'None'
+        # добавляем пользователя в БД
         data = {"tg_id": message.chat.id,
                 "username": username}
-        user = await rq.add_user(data=data, token=args)
-        if not user:
+        user_bd = await rq.add_user(data=data, token=args)
+        if not user_bd:
             await bot.send_message(chat_id=config.tg_bot.support_id,
-                                   text=f'Пользователь не добавлен {data}')
-        else:
+                                   text=f'Пользователь не добавлен в БД {data}')
+        elif user_bd == 'change_link_resource':
+            await bot.send_message(chat_id=config.tg_bot.support_id,
+                                   text=f'У пользователя обновлена ссылка {data} - {args}')
+            if await check_super_admin(telegram_id=message.chat.id):
+                await message.answer(text=f'Приветственное сообщение',
+                                     reply_markup=kb.keyboards_main_admin())
+            else:
+                await message.answer(text=f'Приветственное сообщение',
+                                     reply_markup=kb.keyboards_main_user())
+        elif user_bd == 'user_alredy_in_bd':
+            await bot.send_message(chat_id=config.tg_bot.support_id,
+                                   text=f'Пользователь уже в БД с такой ссылкой {data} - {args}')
             if await check_super_admin(telegram_id=message.chat.id):
                 await message.answer(text=f'Приветственное сообщение',
                                      reply_markup=kb.keyboards_main_admin())
@@ -127,8 +140,8 @@ async def confirm_select_resource(callback: CallbackQuery, state: FSMContext, bo
                            link=resource_info.link_resource)
     await bot.delete_message(chat_id=callback.message.chat.id,
                              message_id=callback.message.message_id)
-    await callback.message.answer(text='Ресурс успешно прикреплен к вашему профилю.\n'
-                                       'Выберите раздел',
+    await callback.message.answer(text=f'Ресурс {resource_info.name_resource} успешно прикреплен к вашему профилю.\n'
+                                       f'Выберите раздел',
                                   reply_markup=kb.keyboards_main_user())
     await callback.answer()
 

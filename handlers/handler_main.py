@@ -259,7 +259,8 @@ async def request_content_about_me(message: Message, state: FSMContext):
     logging.info(f'request_content_about_me {message.chat.id}')
     about_me = message.text
     await state.update_data(about_me=about_me)
-    await message.answer(text=f'Пришлите контент для публикации (фото, текст или видео)')
+    await message.answer(text=f'📎 Прикрепите своё фото (можно несколько) или видео (больше охватов, чем у фото),'
+                              f' которое вы хотите разместить в своей анкете.')
     await state.set_state(Stage.content)
 
 
@@ -273,10 +274,7 @@ async def request_content_photo_text(message: Message, state: FSMContext):
     """
     logging.info(f'request_content_photo_text {message.chat.id}')
     if message.text:
-        content = message.html_text
-        caption = 'None'
-        await state.update_data(caption=caption)
-        await state.update_data(type_content=rq.OrderContent.text)
+        await request_content_about_me(message=message, state=state)
     elif message.photo:
         content = message.photo[-1].file_id
         caption = message.caption
@@ -288,7 +286,8 @@ async def request_content_photo_text(message: Message, state: FSMContext):
         await state.update_data(caption=caption)
         await state.update_data(type_content=rq.OrderContent.video)
     await state.update_data(content=content)
-    await message.answer(text=f'Пришлите ссылку на свой инстаграм')
+    await message.answer(text=f'«👉Пришлите ссылку на свой инстаграм, для отметки вашего профиля в публикации.\n\n'
+                              f'🫢Если хотите остаться анонимными, пришлите ответным сообщением «Анон»')
     await state.set_state(Stage.personal)
 
 

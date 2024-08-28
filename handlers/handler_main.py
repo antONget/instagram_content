@@ -275,6 +275,7 @@ async def request_content_photo_text(message: Message, state: FSMContext):
     logging.info(f'request_content_photo_text {message.chat.id}')
     if message.text:
         await request_content_about_me(message=message, state=state)
+        return
     elif message.photo:
         content = message.photo[-1].file_id
         caption = message.caption

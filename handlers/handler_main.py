@@ -313,8 +313,11 @@ async def request_pay(message: Message, state: FSMContext):
     elif type_public == rq.OrderType.stories:
         amount = "300"
     payment_url, payment_id = create_payment(amount=amount, chat_id=message.chat.id, content=type_public)
-    await message.answer(text=f'Оплатите размещение контента',
-                         reply_markup=kb.keyboard_payment(payment_url=payment_url, payment_id=payment_id, amount=amount))
+    await message.answer(text=f'Оплатите размещение контента, после оплаты нажмите на кнопку «Проверить оплату» ⬇️ и'
+                              f' ваша заявка на размещение поступит администратору',
+                         reply_markup=kb.keyboard_payment(payment_url=payment_url,
+                                                          payment_id=payment_id,
+                                                          amount=amount))
     await state.set_state(default_state)
 
 

@@ -67,12 +67,12 @@ async def get_content_for_public(callback: CallbackQuery):
         user_tg = order.tg_client
         resource = order.link_resource
         about_me = order.about_me
-        personal = (await rq.get_user_tg_id(tg_id=user_tg)).link_personal
+        user = await rq.get_user_tg_id(tg_id=int(user_tg))
         info = f'<b>О клиенте:</b>\n{about_me}\n' \
-               f'<b>TG-uswername:</b>\n{(await rq.get_user_tg_id(user_tg).username)}\n' \
+               f'<b>TG-uswername:</b>\n@{user.username}\n' \
                f'<b>Ресурс для размещения контента:</b>\n{resource}\n' \
                f'<b>Инстаграм клиента:</b>\n' \
-               f'{personal}'
+               f'{user.link_personal}'
         if order.type_content == rq.OrderContent.text:
             await callback.message.answer(text=f'{order.content}\n\n{info}',
                                           reply_markup=kb.keyboard_published(order_id=order_id),

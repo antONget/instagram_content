@@ -171,7 +171,7 @@ async def get_proposal(message: Message, state: FSMContext) -> None:
     :return:
     """
     logging.info(f'get_proposal {message.chat.id}')
-    await message.answer(text=f'Напишите ваше предложение')
+    await message.answer(text=f'Напишите ваше предложение для нас ⬇️')
     await state.update_data(proposal=message.text)
     await state.set_state(Stage.proposal)
 
@@ -186,7 +186,7 @@ async def send_proposal(message: Message, state: FSMContext, bot: Bot):
     :return:
     """
     logging.info(f'send_proposal {message.chat.id}')
-    await message.answer(text='ваше предложение отправлено менеджеру')
+    await message.answer(text='Спасибо, ваше предложение отправлено администратору, мы скоро с вами свяжемся ❤️')
     data = await state.get_data()
     proposal = data['proposal']
 

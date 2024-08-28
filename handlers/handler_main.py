@@ -201,12 +201,13 @@ async def send_proposal(message: Message, state: FSMContext, bot: Bot):
                      "type_proposal": type_proposal,
                      "proposal": message.html_text}
     await rq.add_proposal(data=data_proposal)
-    try:
-        await bot.send_message(chat_id=config.tg_bot.support_id,
-                               text=f'От пользователя @{message.from_user.username} поступило предложение о'
-                                    f' {temp} {message.text}')
-    except IndexError:
-        pass
+    for admin in config.tg_bot.admin_ids.split(','):
+        try:
+            await bot.send_message(chat_id=int(admin),
+                                   text=f'От пользователя @{message.from_user.username} поступило предложение о'
+                                        f' {temp} {message.text}')
+        except IndexError:
+            pass
     await state.set_state(default_state)
 
 

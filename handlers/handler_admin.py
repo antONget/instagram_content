@@ -107,7 +107,7 @@ async def set_order_complete(callback: CallbackQuery, bot: Bot):
     info_order = await rq.get_order_id(order_id=order_id)
     await rq.set_order_status(order_id=order_id)
     await bot.send_message(chat_id=info_order.tg_client,
-                           text='Ваша публикация принята к публикации')
+                           text='Ваш материал опубликован у нас в профиле ✅.')
     await callback.answer(text='Контент помечен как "Опубликован"')
 
 

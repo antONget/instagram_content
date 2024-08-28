@@ -355,7 +355,8 @@ async def check_pay(callback: CallbackQuery, state: FSMContext, bot: Bot):
                       "content": data["content"],
                       "caption": data["caption"]}
         await rq.add_order(data=data_order)
-        await callback.message.answer(text='Материалы для публикации переданы менеджеру')
+        await callback.message.answer(text='Ваши материалы приняты ✅, в ближайшее время администратор выложит их в'
+                                           ' профиль, по готовности вам придёт оповещение 💌')
         list_admins = config.tg_bot.admin_ids.split(',')
         for admin in list_admins:
             try:

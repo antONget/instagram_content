@@ -286,7 +286,7 @@ async def request_content_photo_text(message: Message, state: FSMContext):
         await state.update_data(caption=caption)
         await state.update_data(type_content=rq.OrderContent.video)
     await state.update_data(content=content)
-    await message.answer(text=f'«👉Пришлите ссылку на свой инстаграм, для отметки вашего профиля в публикации.\n\n'
+    await message.answer(text=f'👉Пришлите ссылку на свой инстаграм, для отметки вашего профиля в публикации.\n\n'
                               f'🫢Если хотите остаться анонимными, пришлите ответным сообщением «Анон»')
     await state.set_state(Stage.personal)
 

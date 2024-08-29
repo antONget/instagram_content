@@ -120,9 +120,15 @@ async def get_proposal(callback: CallbackQuery):
     """
     logging.info(f'get_proposal')
     type_proposal = callback.data.split('_')[-1]
+    if type_proposal == 'barter':
+        text = 'бартере'
+    else:
+        text = 'рекламе'
     list_proposal = await rq.get_proposal_type_status(type_proposal=type_proposal)
     for proposal in list_proposal:
-        await callback.message.answer(text=f'{proposal.proposal}',
+        user = await rq.get_user_tg_id(tg_id=proposal.tg_id)
+        await callback.message.answer(text=f'<b>Клиент</b>:\n@{user.username}/{user.tg_id}\n\n'
+                                           f'<b>Предложение о {text}</b>:\n{proposal.proposal}',
                                       reply_markup=kb.keyboard_proposal_read(proposal_id=proposal.id))
     await callback.answer()
 

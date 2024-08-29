@@ -50,7 +50,7 @@ async def add_user(data: dict, token: str) -> bool | str:
             resource = await get_resource_token(token)
             # если ресурс есть обновляем ссылку
             if resource:
-                user.link_resource = await resource.link_resource
+                user.link_resource = resource.link_resource
             else:
                 return False
 

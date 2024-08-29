@@ -68,6 +68,7 @@ async def get_content_for_public(callback: CallbackQuery):
         resource = order.link_resource
         about_me = order.about_me
         user = await rq.get_user_tg_id(tg_id=int(user_tg))
+        content = order.content.split(',')
         info = f'<b>О клиенте:</b>\n{about_me}\n' \
                f'<b>TG-uswername:</b>\n@{user.username}\n' \
                f'<b>Ресурс для размещения контента:</b>\n{resource}\n' \
@@ -78,16 +79,25 @@ async def get_content_for_public(callback: CallbackQuery):
                                           reply_markup=kb.keyboard_published(order_id=order_id),
                                           parse_mode='html')
         elif order.type_content == rq.OrderContent.photo:
-
-            await callback.message.answer_photo(photo=f'{order.content}',
-                                                caption=f'{order.caption}\n\n{info}',
-                                                reply_markup=kb.keyboard_published(order_id=order_id),
-                                                parse_mode='html')
+            if len(content) == 1:
+                await callback.message.answer_photo(photo=f'{content[0]}',
+                                                    caption=f'{order.caption}\n\n{info}',
+                                                    reply_markup=kb.keyboard_published(order_id=order_id),
+                                                    parse_mode='html')
+            else:
+                media = []
+                for image in content:
+                    media.append(InputMediaPhoto(media=image))
+                await callback.message.answer_media_group(media=media)
+                await callback.message.answer(text=info,
+                                              reply_markup=kb.keyboard_published(order_id=order_id),
+                                              parse_mode='html')
         elif order.type_content == rq.OrderContent.video:
-            await callback.message.answer_video(video=f'{order.content}',
+            await callback.message.answer_video(video=f'{content[0]}',
                                                 caption=f'{order.caption}\n\n{info}',
                                                 reply_markup=kb.keyboard_published(order_id=order_id),
                                                 parse_mode='html')
+
     await callback.answer()
 
 

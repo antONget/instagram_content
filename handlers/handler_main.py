@@ -1,9 +1,11 @@
+import asyncio
+import random
+
 from aiogram import Router, F, Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart, StateFilter, CommandObject, or_f
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup, default_state
-
 
 from config_data.config import Config, load_config
 import database.requests as rq
@@ -232,6 +234,7 @@ async def request_self(message: Message, state: FSMContext) -> None:
     :return:
     """
     logging.info(f'request_self {message.chat.id}')
+    await state.clear()
     if message.text == 'Публикация':
         await state.update_data(type_public=rq.OrderType.public)
     elif message.text == 'Reels':
@@ -262,6 +265,7 @@ async def request_content_about_me(message: Message, state: FSMContext):
     await message.answer(text=f'📎 Прикрепите своё фото (можно несколько) или видео (больше охватов, чем у фото),'
                               f' которое вы хотите разместить в своей анкете.')
     await state.set_state(Stage.content)
+    await state.update_data(content=[])
 
 
 @router.message(StateFilter(Stage.content), or_f(F.text, F.photo, F.video))
@@ -273,6 +277,9 @@ async def request_content_photo_text(message: Message, state: FSMContext):
     :return:
     """
     logging.info(f'request_content_photo_text {message.chat.id}')
+    await asyncio.sleep(random.randint(0, 5))
+    data = await state.get_data()
+    list_content = data['content']
     if message.text:
         await request_content_about_me(message=message, state=state)
         return
@@ -292,10 +299,12 @@ async def request_content_photo_text(message: Message, state: FSMContext):
             caption = 'None'
         await state.update_data(caption=caption)
         await state.update_data(type_content=rq.OrderContent.video)
-    await state.update_data(content=content)
-    await message.answer(text=f'👉Пришлите ссылку на свой инстаграм, для отметки вашего профиля в публикации.\n\n'
-                              f'🫢Если хотите остаться анонимными, пришлите ответным сообщением «Анон»')
-    await state.set_state(Stage.personal)
+    list_content.append(content)
+    await state.update_data(content=list_content)
+    if len(list_content) == 1:
+        await message.answer(text=f'👉Пришлите ссылку на свой инстаграм, для отметки вашего профиля в публикации.\n\n'
+                                  f'🫢Если хотите остаться анонимными, пришлите ответным сообщением «Анон»')
+        await state.set_state(Stage.personal)
 
 
 @router.message(StateFilter(Stage.personal))
@@ -348,6 +357,11 @@ async def check_pay(callback: CallbackQuery, state: FSMContext, bot: Bot):
         await callback.answer(text='Платеж прошел успешно', show_alert=True)
         data = await state.get_data()
         user_info = await rq.get_user_tg_id(tg_id=callback.message.chat.id)
+        list_content = data["content"]
+        if len(list_content) == 1:
+            content = list_content[0]
+        else:
+            content = ','.join(list_content)
         data_order = {"status": rq.OrderStatus.payment,
                       "data_create": datetime.today().strftime('%H/%M/%S/%d/%m/%Y'),
                       "tg_client": callback.message.chat.id,
@@ -355,7 +369,7 @@ async def check_pay(callback: CallbackQuery, state: FSMContext, bot: Bot):
                       "about_me": data["about_me"],
                       "type_public": data["type_public"],
                       "type_content": data["type_content"],
-                      "content": data["content"],
+                      "content": content,
                       "caption": data["caption"]}
         await rq.add_order(data=data_order)
         await callback.message.answer(text='Ваши материалы приняты ✅, в ближайшее время администратор выложит их в'

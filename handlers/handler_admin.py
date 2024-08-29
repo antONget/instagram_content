@@ -129,7 +129,8 @@ async def get_proposal(callback: CallbackQuery):
         user = await rq.get_user_tg_id(tg_id=proposal.tg_id)
         await callback.message.answer(text=f'<b>Клиент</b>:\n@{user.username}/{user.tg_id}\n\n'
                                            f'<b>Предложение о {text}</b>:\n{proposal.proposal}',
-                                      reply_markup=kb.keyboard_proposal_read(proposal_id=proposal.id))
+                                      reply_markup=kb.keyboard_proposal_read(proposal_id=proposal.id),
+                                      parse_mode='html')
     await callback.answer()
 
 

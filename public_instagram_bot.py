@@ -1,15 +1,15 @@
 from aiogram import Bot, Dispatcher
 from aiogram.types import FSInputFile
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+from aiogram.types import ErrorEvent
 
 from handlers import handler_main, handler_admin, other_handlers
-
-
 from config_data.config import Config, load_config
 from database.models import async_main
+
 import asyncio
 import logging
-
-from aiogram.types import ErrorEvent
 import traceback
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ async def main():
     config: Config = load_config()
 
     # Инициализируем бот и диспетчер
-    bot = Bot(token=config.tg_bot.token)
+    bot = Bot(token=config.tg_bot.token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher()
 
     # Регистрируем router в диспетчере

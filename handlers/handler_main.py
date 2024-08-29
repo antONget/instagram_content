@@ -308,7 +308,10 @@ async def request_pay(message: Message, state: FSMContext):
     """
     logging.info(f'request_pay {message.chat.id}')
     personal = message.text
-    await state.update_data(personal=personal)
+    if not personal:
+        await state.update_data(personal="Anon")
+    else:
+        await state.update_data(personal=personal)
     await rq.set_user_link_personal(tg_id=message.chat.id, link_personal=personal)
     data = await state.get_data()
     type_public = data['type_public']

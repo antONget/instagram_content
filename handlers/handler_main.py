@@ -164,53 +164,53 @@ async def back_select_resource(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
-@router.message(or_f(F.text == 'Бартер', F.text == 'Реклама'))
-async def get_proposal(message: Message, state: FSMContext) -> None:
-    """
-    Запрашиваем предложение - реклама/бартер
-    :param message:
-    :param state:
-    :return:
-    """
-    logging.info(f'get_proposal {message.chat.id}')
-    await message.answer(text=f'Напишите ваше предложение для нас ⬇️')
-    await state.update_data(proposal=message.text)
-    await state.set_state(Stage.proposal)
-
-
-@router.message(StateFilter(Stage.proposal), F.text)
-async def send_proposal(message: Message, state: FSMContext, bot: Bot):
-    """
-    Получаем предложение - реклама/бартер
-    :param message:
-    :param state:
-    :param bot:
-    :return:
-    """
-    logging.info(f'send_proposal {message.chat.id}')
-    await message.answer(text='Спасибо, ваше предложение отправлено администратору, мы скоро с вами свяжемся ❤️')
-    data = await state.get_data()
-    proposal = data['proposal']
-
-    if proposal == 'Бартер':
-        temp = 'бартере'
-        type_proposal = rq.ProposalType.barter
-    elif proposal == 'Реклама':
-        temp = 'рекламе'
-        type_proposal = rq.ProposalType.advertisement
-    data_proposal = {"tg_id": message.chat.id,
-                     "status": rq.ProposalStatus.new,
-                     "type_proposal": type_proposal,
-                     "proposal": message.html_text}
-    await rq.add_proposal(data=data_proposal)
-    for admin in config.tg_bot.admin_ids.split(','):
-        try:
-            await bot.send_message(chat_id=int(admin),
-                                   text=f'От пользователя @{message.from_user.username} поступило предложение о'
-                                        f' {temp} {message.text}')
-        except IndexError:
-            pass
-    await state.set_state(default_state)
+# @router.message(or_f(F.text == 'Бартер', F.text == 'Реклама'))
+# async def get_proposal(message: Message, state: FSMContext) -> None:
+#     """
+#     Запрашиваем предложение - реклама/бартер
+#     :param message:
+#     :param state:
+#     :return:
+#     """
+#     logging.info(f'get_proposal {message.chat.id}')
+#     await message.answer(text=f'Напишите ваше предложение для нас ⬇️')
+#     await state.update_data(proposal=message.text)
+#     await state.set_state(Stage.proposal)
+#
+#
+# @router.message(StateFilter(Stage.proposal), F.text)
+# async def send_proposal(message: Message, state: FSMContext, bot: Bot):
+#     """
+#     Получаем предложение - реклама/бартер
+#     :param message:
+#     :param state:
+#     :param bot:
+#     :return:
+#     """
+#     logging.info(f'send_proposal {message.chat.id}')
+#     await message.answer(text='Спасибо, ваше предложение отправлено администратору, мы скоро с вами свяжемся ❤️')
+#     data = await state.get_data()
+#     proposal = data['proposal']
+#
+#     if proposal == 'Бартер':
+#         temp = 'бартере'
+#         type_proposal = rq.ProposalType.barter
+#     elif proposal == 'Реклама':
+#         temp = 'рекламе'
+#         type_proposal = rq.ProposalType.advertisement
+#     data_proposal = {"tg_id": message.chat.id,
+#                      "status": rq.ProposalStatus.new,
+#                      "type_proposal": type_proposal,
+#                      "proposal": message.html_text}
+#     await rq.add_proposal(data=data_proposal)
+#     for admin in config.tg_bot.admin_ids.split(','):
+#         try:
+#             await bot.send_message(chat_id=int(admin),
+#                                    text=f'От пользователя @{message.from_user.username} поступило предложение о'
+#                                         f' {temp} {message.text}')
+#         except IndexError:
+#             pass
+#     await state.set_state(default_state)
 
 
 @router.message(F.text == "Тех. поддержка")

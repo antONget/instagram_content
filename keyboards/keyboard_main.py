@@ -17,7 +17,7 @@ def keyboards_main_admin() -> ReplyKeyboardMarkup:
     button_6 = KeyboardButton(text='Тех. поддержка')
     button_7 = KeyboardButton(text='Панель управления')
     keyboard = ReplyKeyboardMarkup(
-        keyboard=[[button_1], [button_2], [button_3], [button_4, button_5], [button_6], [button_7]],
+        keyboard=[[button_1], [button_2], [button_3], [button_6], [button_7]],
         resize_keyboard=True
     )
     return keyboard

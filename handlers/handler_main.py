@@ -76,7 +76,7 @@ async def process_start_command(message: Message, state: FSMContext, command: Co
     else:
         # админ
         if await check_super_admin(telegram_id=message.chat.id):
-            await message.answer(text=f'Приветственное сообщение',
+            await message.answer(text=f'Выберите формат для размещения вашей анкеты 🔥',
                                  reply_markup=kb.keyboards_main_admin())
             if message.from_user.username:
                 username = message.from_user.username

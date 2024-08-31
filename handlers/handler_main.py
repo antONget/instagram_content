@@ -213,7 +213,7 @@ async def back_select_resource(callback: CallbackQuery, state: FSMContext):
 #     await state.set_state(default_state)
 
 
-@router.message(F.text == "Тех. поддержка")
+@router.message(F.text == "Тех. поддержка 🧑‍💻")
 async def support(message: Message) -> None:
     """
     Сообщаем кому задать вопрос

@@ -58,19 +58,19 @@ async def process_start_command(message: Message, state: FSMContext, command: Co
             await bot.send_message(chat_id=config.tg_bot.support_id,
                                    text=f'У пользователя обновлена ссылка {data} - {args}')
             if await check_super_admin(telegram_id=message.chat.id):
-                await message.answer(text=f'Приветственное сообщение',
+                await message.answer(text=f'Выберите формат для размещения вашей анкеты 🔥',
                                      reply_markup=kb.keyboards_main_admin())
             else:
-                await message.answer(text=f'Приветственное сообщение',
+                await message.answer(text=f'Выберите формат для размещения вашей анкеты 🔥',
                                      reply_markup=kb.keyboards_main_user())
         elif user_bd == 'user_alredy_in_bd':
             await bot.send_message(chat_id=config.tg_bot.support_id,
                                    text=f'Пользователь уже в БД с такой ссылкой {data} - {args}')
             if await check_super_admin(telegram_id=message.chat.id):
-                await message.answer(text=f'Приветственное сообщение',
+                await message.answer(text=f'Выберите формат для размещения вашей анкеты 🔥',
                                      reply_markup=kb.keyboards_main_admin())
             else:
-                await message.answer(text=f'Приветственное сообщение',
+                await message.answer(text=f'Выберите формат для размещения вашей анкеты 🔥',
                                      reply_markup=kb.keyboards_main_user())
     # переход без ссылки
     else:

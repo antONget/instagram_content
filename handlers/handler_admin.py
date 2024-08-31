@@ -1,5 +1,5 @@
 from aiogram import F, Router, Bot
-from aiogram.types import CallbackQuery, Message, InputMediaPhoto, InputMedia
+from aiogram.types import CallbackQuery, Message, InputMediaPhoto, InputMediaVideo
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup, default_state
 from aiogram.filters import StateFilter
@@ -85,18 +85,22 @@ async def get_content_for_public(callback: CallbackQuery):
                                                     reply_markup=kb.keyboard_published(order_id=order_id),
                                                     parse_mode='html')
             else:
-                media = []
+                media_photo = []
+                media_video = []
                 for image in content:
-                    media.append(InputMedia(media=image))
+                    media_photo.append(InputMediaPhoto(media=image))
+                    media_video.append(InputMediaVideo(media=image))
                 try:
-                    await callback.message.answer_media_group(media=media)
+                    await callback.message.answer_media_group(media=media_photo)
                 except:
-                    pass
-                for image in content:
                     try:
-                        await callback.message.answer_photo(photo=image)
+                        await callback.message.answer_media_group(media=media_video)
                     except:
-                        await callback.message.answer_video(video=image)
+                        for image in content:
+                            try:
+                                await callback.message.answer_photo(photo=image)
+                            except:
+                                await callback.message.answer_video(video=image)
                 await callback.message.answer(text=info,
                                               reply_markup=kb.keyboard_published(order_id=order_id),
                                               parse_mode='html')

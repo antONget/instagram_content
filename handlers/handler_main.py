@@ -134,14 +134,17 @@ async def confirm_select_resource(callback: CallbackQuery, state: FSMContext, bo
     :param state:
     :return:
     """
-    logging.info(f'confirm_select_resource {callback.message.chat.id}')
+    logging.info(f'confirm_select_resource {callback.message.chat.id} {state}')
     data = await state.get_data()
     resource_id = data['resource_id']
     resource_info = await rq.get_resource_id(resource_id=resource_id)
     await rq.set_user_link(tg_id=callback.message.chat.id,
                            link=resource_info.link_resource)
-    await bot.delete_message(chat_id=callback.message.chat.id,
-                             message_id=callback.message.message_id)
+    try:
+        await bot.delete_message(chat_id=callback.message.chat.id,
+                                 message_id=callback.message.message_id)
+    except:
+        pass
     await callback.message.answer(text=f'Ресурс {resource_info.name_resource} успешно прикреплен к вашему профилю.\n'
                                        f'Выберите раздел',
                                   reply_markup=kb.keyboards_main_user())
@@ -296,7 +299,7 @@ async def request_content_photo_text(message: Message, state: FSMContext):
     logging.info(f'request_content_photo_text {message.chat.id}')
     await asyncio.sleep(random.randint(0, 5))
     data = await state.get_data()
-    list_content = data['content']
+    list_content = data.get('content', [])
     if message.text:
         await request_content_about_me(message=message, state=state)
         return

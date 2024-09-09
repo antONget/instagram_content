@@ -70,7 +70,7 @@ async def get_content_for_public(callback: CallbackQuery):
         user = await rq.get_user_tg_id(tg_id=int(user_tg))
         content = order.content.split(',')
         info = f'<b>О клиенте:</b>\n{about_me}\n' \
-               f'<b>TG-uswername:</b>\n@{user.username}\n' \
+               f'<b>TG-username:</b>\n@{user.username}\n' \
                f'<b>Ресурс для размещения контента:</b>\n{resource}\n' \
                f'<b>Инстаграм клиента:</b>\n' \
                f'{user.link_personal}'

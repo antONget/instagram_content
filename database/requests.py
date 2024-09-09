@@ -128,14 +128,14 @@ async def set_user_link_personal(tg_id: int, link_personal: str) -> None:
     """
     logging.info(f'set_user_link_personal')
     async with async_session() as session:
+        #
         user = await session.scalar(select(User).where(User.tg_id == tg_id))
         if user:
             if link_personal:
                 user.link_personal = link_personal
-                await session.commit()
             else:
-                user.link_personal = 'None'
-                await session.commit()
+                user.link_personal = '_None_'
+            await session.commit()
 
 """RESOURCE"""
 

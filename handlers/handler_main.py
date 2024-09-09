@@ -297,7 +297,7 @@ async def request_content_photo_text(message: Message, state: FSMContext):
     :return:
     """
     logging.info(f'request_content_photo_text {message.chat.id}')
-    await asyncio.sleep(random.randint(0, 5))
+    await asyncio.sleep(random.random())
     data = await state.get_data()
     list_content = data.get('content', [])
     if message.text:

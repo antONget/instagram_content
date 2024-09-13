@@ -136,7 +136,9 @@ async def confirm_select_resource(callback: CallbackQuery, state: FSMContext, bo
     """
     logging.info(f'confirm_select_resource {callback.message.chat.id} {state}')
     data = await state.get_data()
-    resource_id = data['resource_id']
+    resource_id = data.get('resource_id', None)
+    if not resource_id:
+        await callback.message.answer(text='Перезапустите бот /start')
     resource_info = await rq.get_resource_id(resource_id=resource_id)
     await rq.set_user_link(tg_id=callback.message.chat.id,
                            link=resource_info.link_resource)

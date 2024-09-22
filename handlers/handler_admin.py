@@ -74,41 +74,52 @@ async def get_content_for_public(callback: CallbackQuery):
                f'<b>Ресурс для размещения контента:</b>\n{resource}\n' \
                f'<b>Инстаграм клиента:</b>\n' \
                f'{user.link_personal}'
-        if order.type_content == rq.OrderContent.text:
-            await callback.message.answer(text=f'{order.content}\n\n{info}',
-                                          reply_markup=kb.keyboard_published(order_id=order_id),
-                                          parse_mode='html')
-        elif order.type_content == rq.OrderContent.photo:
-            if len(content) == 1:
-                await callback.message.answer_photo(photo=f'{content[0]}',
-                                                    caption=f'{order.caption}\n\n{info}',
-                                                    reply_markup=kb.keyboard_published(order_id=order_id),
-                                                    parse_mode='html')
-            else:
-                media_photo = []
-                media_video = []
-                for image in content:
-                    media_photo.append(InputMediaPhoto(media=image))
-                    media_video.append(InputMediaVideo(media=image))
+        # if order.type_content == rq.OrderContent.text:
+        #     await callback.message.answer(text=f'{order.content}\n\n{info}',
+        #                                   reply_markup=kb.keyboard_published(order_id=order_id),
+        #                                   parse_mode='html')
+        for item in content:
+            try:
+                await callback.message.answer_photo(photo=item)
+            except:
                 try:
-                    await callback.message.answer_media_group(media=media_photo)
+                    await callback.message.answer_video(video=item)
                 except:
-                    try:
-                        await callback.message.answer_media_group(media=media_video)
-                    except:
-                        for image in content:
-                            try:
-                                await callback.message.answer_photo(photo=image)
-                            except:
-                                await callback.message.answer_video(video=image)
-                await callback.message.answer(text=info,
-                                              reply_markup=kb.keyboard_published(order_id=order_id),
-                                              parse_mode='html')
-        elif order.type_content == rq.OrderContent.video:
-            await callback.message.answer_video(video=f'{content[0]}',
-                                                caption=f'{order.caption}\n\n{info}',
-                                                reply_markup=kb.keyboard_published(order_id=order_id),
-                                                parse_mode='html')
+                    await callback.message.answer_document(document=item)
+        await callback.message.answer(text=f'{info}',
+                                      reply_markup=kb.keyboard_published(order_id=order_id),
+                                      parse_mode='html')
+        # if order.type_content == rq.OrderContent.photo:
+        #     if len(content) == 1:
+        #         await callback.message.answer_photo(photo=f'{content[0]}',
+        #                                             caption=f'{order.caption}\n\n{info}',
+        #                                             reply_markup=kb.keyboard_published(order_id=order_id),
+        #                                             parse_mode='html')
+        #     else:
+        #         media_photo = []
+        #         media_video = []
+        #         for image in content:
+        #             media_photo.append(InputMediaPhoto(media=image))
+        #             media_video.append(InputMediaVideo(media=image))
+        #         try:
+        #             await callback.message.answer_media_group(media=media_photo)
+        #         except:
+        #             try:
+        #                 await callback.message.answer_media_group(media=media_video)
+        #             except:
+        #                 for image in content:
+        #                     try:
+        #                         await callback.message.answer_photo(photo=image)
+        #                     except:
+        #                         await callback.message.answer_video(video=image)
+        #         await callback.message.answer(text=info,
+        #                                       reply_markup=kb.keyboard_published(order_id=order_id),
+        #                                       parse_mode='html')
+        # elif order.type_content == rq.OrderContent.video:
+        #     await callback.message.answer_video(video=f'{content[0]}',
+        #                                         caption=f'{order.caption}\n\n{info}',
+        #                                         reply_markup=kb.keyboard_published(order_id=order_id),
+        #                                         parse_mode='html')
 
     await callback.answer()
 
@@ -240,7 +251,7 @@ async def process_select_resource(callback: CallbackQuery):
 @router.callback_query(F.data == "statistic")
 async def process_get_statistic(callback: CallbackQuery):
     """
-    Сатистистика переходов и оплаты контента
+    Статистика переходов и оплаты контента
     :param callback:
     :return:
     """

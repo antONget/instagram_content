@@ -3,7 +3,7 @@ import asyncio
 from aiogram import Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.types import FSInputFile
-from database.requests import get_all_users, get_user_username, get_order_client_id
+from database.requests import get_all_users, get_user_username, get_order_client_id, get_orders_payment
 from services.get_exel import list_users_to_exel
 from config_data.config import Config, load_config
 
@@ -72,19 +72,34 @@ async def all_message(message: Message) -> None:
                                           'Пример: "/get_content @username"')
             else:
                 username = message.text.split()[1]
-                user = await get_user_username(username=username)
-                order = await get_order_client_id(tg_client=user.tg_id)
-                content = order.content
-                content_list = content.split(',')
-                await message.answer(text=order.about_me)
-                for item in content_list:
-                    try:
-                        await message.answer_photo(photo=item)
-                    except:
+                if username == 'payment':
+                    orders = await get_orders_payment()
+                    for order in orders:
+                        content = order.content
+                        content_list = content.split(',')
+                        await message.answer(text=order.about_me)
+                        for item in content_list:
+                            try:
+                                await message.answer_photo(photo=item)
+                            except:
+                                try:
+                                    await message.answer_video(video=item)
+                                except:
+                                    await message.answer_document(document=item)
+                else:
+                    user = await get_user_username(username=username)
+                    order = await get_order_client_id(tg_client=user.tg_id)
+                    content = order.content
+                    content_list = content.split(',')
+                    await message.answer(text=order.about_me)
+                    for item in content_list:
                         try:
-                            await message.answer_video(video=item)
+                            await message.answer_photo(photo=item)
                         except:
-                            await message.answer_document(document=item)
+                            try:
+                                await message.answer_video(video=item)
+                            except:
+                                await message.answer_document(document=item)
 
         else:
             await message.answer('Я вас не понимаю!')

@@ -283,6 +283,17 @@ async def get_orders_type_content(type_public: str) -> Order:
         return orders.all()
 
 
+async def get_orders_payment() -> Order:
+    """
+    Получаем заказы оплаченные но не опубликованные
+    :return:
+    """
+    logging.info(f'get_orders_type_content')
+    async with async_session() as session:
+        orders = await session.scalars(select(Order).where(Order.status == OrderStatus.payment))
+        return orders.all()
+
+
 async def get_order_id(order_id: int) -> Order:
     """
     Получаем заказ по его id

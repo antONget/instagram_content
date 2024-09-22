@@ -169,55 +169,6 @@ async def back_select_resource(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
-# @router.message(or_f(F.text == 'Бартер', F.text == 'Реклама'))
-# async def get_proposal(message: Message, state: FSMContext) -> None:
-#     """
-#     Запрашиваем предложение - реклама/бартер
-#     :param message:
-#     :param state:
-#     :return:
-#     """
-#     logging.info(f'get_proposal {message.chat.id}')
-#     await message.answer(text=f'Напишите ваше предложение для нас ⬇️')
-#     await state.update_data(proposal=message.text)
-#     await state.set_state(Stage.proposal)
-#
-#
-# @router.message(StateFilter(Stage.proposal), F.text)
-# async def send_proposal(message: Message, state: FSMContext, bot: Bot):
-#     """
-#     Получаем предложение - реклама/бартер
-#     :param message:
-#     :param state:
-#     :param bot:
-#     :return:
-#     """
-#     logging.info(f'send_proposal {message.chat.id}')
-#     await message.answer(text='Спасибо, ваше предложение отправлено администратору, мы скоро с вами свяжемся ❤️')
-#     data = await state.get_data()
-#     proposal = data['proposal']
-#
-#     if proposal == 'Бартер':
-#         temp = 'бартере'
-#         type_proposal = rq.ProposalType.barter
-#     elif proposal == 'Реклама':
-#         temp = 'рекламе'
-#         type_proposal = rq.ProposalType.advertisement
-#     data_proposal = {"tg_id": message.chat.id,
-#                      "status": rq.ProposalStatus.new,
-#                      "type_proposal": type_proposal,
-#                      "proposal": message.html_text}
-#     await rq.add_proposal(data=data_proposal)
-#     for admin in config.tg_bot.admin_ids.split(','):
-#         try:
-#             await bot.send_message(chat_id=int(admin),
-#                                    text=f'От пользователя @{message.from_user.username} поступило предложение о'
-#                                         f' {temp} {message.text}')
-#         except IndexError:
-#             pass
-#     await state.set_state(default_state)
-
-
 @router.message(F.text == "Тех. поддержка 🧑‍💻")
 async def support(message: Message) -> None:
     """
@@ -273,7 +224,7 @@ async def request_self(message: Message, state: FSMContext) -> None:
     await state.set_state(Stage.about_me)
 
 
-@router.message(StateFilter(Stage.about_me), F.text)
+@router.message(StateFilter(Stage.about_me))
 async def request_content_about_me(message: Message, state: FSMContext):
     """
     Получаем сообщение пользователя с рассказом о себе
@@ -282,6 +233,10 @@ async def request_content_about_me(message: Message, state: FSMContext):
     :return:
     """
     logging.info(f'request_content_about_me {message.chat.id}')
+    if message.photo or message.document or message.video:
+        await message.answer(text='Сейчас пришли только текст.\n'
+                                  'Поделитесь, кого вы хотите найти или чем заняться на нашем сайте, дайте волю'
+                                  f' своей фантазии 💗')
     about_me = message.text
     await state.update_data(about_me=about_me)
     await message.answer(text=f'📎 Прикрепите своё фото (можно несколько) или видео (больше охватов, чем у фото),'
@@ -290,7 +245,7 @@ async def request_content_about_me(message: Message, state: FSMContext):
     await state.update_data(content=[])
 
 
-@router.message(StateFilter(Stage.content), or_f(F.text, F.photo, F.video))
+@router.message(StateFilter(Stage.content), or_f(F.document, F.photo, F.video))
 async def request_content_photo_text(message: Message, state: FSMContext):
     """
     Получаем от пользователя контент для публикации
@@ -303,7 +258,8 @@ async def request_content_photo_text(message: Message, state: FSMContext):
     data = await state.get_data()
     list_content = data.get('content', [])
     if message.text:
-        await request_content_about_me(message=message, state=state)
+        await message.answer(text=f'📎 Прикрепите своё фото (можно несколько) или видео (больше охватов, чем у фото),'
+                                  f' которое вы хотите разместить в своей анкете.')
         return
     elif message.photo:
         content = message.photo[-1].file_id
@@ -321,6 +277,14 @@ async def request_content_photo_text(message: Message, state: FSMContext):
             caption = 'None'
         await state.update_data(caption=caption)
         await state.update_data(type_content=rq.OrderContent.video)
+    elif message.document:
+        content = message.document.file_id
+        if message.caption:
+            caption = message.caption
+        else:
+            caption = 'None'
+        await state.update_data(caption=caption)
+        await state.update_data(type_content=rq.OrderContent.document)
     list_content.append(content)
     await state.update_data(content=list_content)
     if len(list_content) == 1:

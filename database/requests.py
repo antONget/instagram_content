@@ -81,6 +81,18 @@ async def get_user_tg_id(tg_id: int) -> User:
         return user
 
 
+async def get_user_username(username: str) -> User:
+    """
+    Получаем информацию по пользователю
+    :param username:
+    :return:
+    """
+    logging.info(f'get_user_tg_id')
+    async with async_session() as session:
+        user = await session.scalar(select(User).where(User.username == username))
+        return user
+
+
 async def get_users_link(link: str) -> User:
     """
     Получаем список пользователей перешедших по ссылке
@@ -243,6 +255,7 @@ class OrderContent:
     text = "text"
     photo = "photo"
     video = "video"
+    document = "document"
 
 
 async def add_order(data: dict) -> None:
@@ -279,6 +292,18 @@ async def get_order_id(order_id: int) -> Order:
     logging.info(f'get_orders_type_content')
     async with async_session() as session:
         orders = await session.scalar(select(Order).where(Order.id == order_id))
+        return orders
+
+
+async def get_order_client_id(tg_client: int) -> Order:
+    """
+    Получаем заказ по его id
+    :param tg_client:
+    :return:
+    """
+    logging.info(f'get_order_client_id')
+    async with async_session() as session:
+        orders = await session.scalar(select(Order).where(Order.tg_client == tg_client))
         return orders
 
 

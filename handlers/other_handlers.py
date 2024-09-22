@@ -3,7 +3,7 @@ import asyncio
 from aiogram import Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.types import FSInputFile
-from database.requests import get_all_users
+from database.requests import get_all_users, get_user_username, get_order_client_id
 from services.get_exel import list_users_to_exel
 from config_data.config import Config, load_config
 
@@ -43,12 +43,12 @@ async def all_message(message: Message) -> None:
             file_path = "py_log.log"
             await message.answer_document(FSInputFile(file_path))
 
-        if message.text == '/get_dbfile':
+        elif message.text == '/get_dbfile':
             logging.info(f'all_message message.admin./get_dbfile')
             file_path = "database/db.sqlite3"
             await message.answer_document(FSInputFile(file_path))
 
-        if message.text == '/get_listusers':
+        elif message.text == '/get_listusers':
             logging.info(f'all_message message.admin./get_listusers')
             list_user = await get_all_users()
             text = 'Список пользователей:\n'
@@ -60,11 +60,31 @@ async def all_message(message: Message) -> None:
                     text = ''
             await message.answer(text=text)
 
-        if message.text == '/get_exelusers':
+        elif message.text == '/get_exelusers':
             logging.info(f'all_message message.admin./get_exelusers')
             await list_users_to_exel()
             file_path = "list_user.xlsx"
             await message.answer_document(FSInputFile(file_path))
+
+        elif "/get_content" in message.text:
+            if len(message.text.split()) != 2:
+                await message.answer(text='Введите команду вместе с username пользователя без знака @ через пробел.\n'
+                                          'Пример: "/get_content @username"')
+            else:
+                username = message.text.split()[1]
+                user = await get_user_username(username=username)
+                order = await get_order_client_id(tg_client=user.tg_id)
+                content = order.content
+                content_list = content.split(',')
+                await message.answer(text=order.about_me)
+                for item in content_list:
+                    try:
+                        await message.answer_photo(photo=item)
+                    except:
+                        try:
+                            await message.answer_video(video=item)
+                        except:
+                            await message.answer_document(document=item)
 
         else:
             await message.answer('Я вас не понимаю!')

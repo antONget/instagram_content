@@ -39,13 +39,13 @@ async def mailing_message(message: Message, state: FSMContext) -> None:
     logging.info(f'mailing_message {message.chat.id}')
     send = message.text.split()
     if len(send) == 2:
-        if send[2] == "all":
+        if send[1] == "all":
             await message.answer(text='Пришлите контент чтобы его отправить всем пользователям бота')
             await state.update_data(id_user="all")
             await state.set_state(Mailing.content)
         else:
             try:
-                id_user = int(send[2])
+                id_user = int(send[1])
                 info_user = await get_user_tg_id(id_user)
                 if info_user:
                     result = get_telegram_user(user_id=id_user, bot_token=config.tg_bot.token)

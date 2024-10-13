@@ -117,7 +117,8 @@ async def mailing_content(callback: CallbackQuery, state: FSMContext, bot: Bot):
     if answer == 'yes':
 
         if id_user == 'all':
-            list_users = await get_all_users()
+            users = await get_all_users()
+            list_users = [user for user in users]
             await callback.message.edit_text(text=f'Рассылка на {len(list_users)} пользователей запущена',
                                              reply_markup=None)
             count = 0

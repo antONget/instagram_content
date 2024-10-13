@@ -31,14 +31,14 @@ def get_telegram_user(user_id, bot_token):
 @router.message(F.text == '/mailing', IsSuperAdmin())
 async def mailing_message(message: Message, state: FSMContext) -> None:
     logging.info(f'mailing_message {message.chat.id}')
-    if '/send_message' in message.text:
+    if '/mailing' in message.text:
         logging.info(f'all_message-/send_message')
         send = message.text.split()
         if send[2] == "all":
             await message.answer(text='Пришлите контент чтобы его отправить всем пользователям бота')
             await state.update_data(id_user="all")
             await state.set_state(Mailing.content)
-        else:
+        elif len(send) == 2:
             try:
                 id_user = int(send[2])
                 info_user = await get_user_tg_id(id_user)
@@ -55,10 +55,12 @@ async def mailing_message(message: Message, state: FSMContext) -> None:
                 else:
                     await message.answer(text=f'Бот не нашел пользователя {id_user} в БД')
             except:
-                await message.answer(text=f'Пришлите после команды /mailing '
-                                          f'id телеграм пользователя (например, /mailing 843554518)'
-                                          f' - для отправки пользователю по его id;'
-                                          f'all (/mailing all) - для отправки всем пользователям в БД.')
+                pass
+        else:
+            await message.answer(text=f'Пришлите после команды /mailing '
+                                      f'id телеграм пользователя (например, /mailing 843554518)'
+                                      f' - для отправки пользователю по его id;'
+                                      f'all (/mailing all) - для отправки всем пользователям в БД.')
 
 
 @router.message(StateFilter(Mailing.content))

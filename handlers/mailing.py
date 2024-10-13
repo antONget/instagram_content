@@ -28,7 +28,7 @@ def get_telegram_user(user_id, bot_token):
     return response.json()
 
 
-@router.message(F.text == '/mailing', IsSuperAdmin())
+@router.message(F.text.startswith('/mailing'), IsSuperAdmin())
 async def mailing_message(message: Message, state: FSMContext) -> None:
     """
     функция для рассылки
@@ -62,9 +62,9 @@ async def mailing_message(message: Message, state: FSMContext) -> None:
             except:
                 pass
     else:
-        await message.answer(text=f'Пришлите после команды /mailing '
+        await message.answer(text=f'Пришлите после команды /mailing\n'
                                   f'id телеграм пользователя (например, /mailing 843554518)'
-                                  f' - для отправки пользователю по его id;'
+                                  f' - для отправки пользователю по его id;\n'
                                   f'all (/mailing all) - для отправки всем пользователям в БД.')
 
 

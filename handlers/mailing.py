@@ -89,7 +89,7 @@ async def get_content(message: Message, state: FSMContext):
     button_1 = InlineKeyboardButton(text=f'Отправить',
                                     callback_data='mail_yes')
     button_2 = InlineKeyboardButton(text=f'Отмена',
-                                    callback_data='mail_yes')
+                                    callback_data='mail_no')
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button_1], [button_2]])
     if data['id_user'] == 'all':
         await message.answer(text=f'Отправить контент всем пользователя в из БД',

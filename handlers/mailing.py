@@ -147,7 +147,10 @@ async def mailing_content(callback: CallbackQuery, state: FSMContext, bot: Bot):
                                          caption=data['content_text'])
             except:
                 pass
+            await callback.message.edit_text(text=f'Пользователь получил рассылку',
+                                             reply_markup=None)
         await state.set_state(state=None)
     else:
         await callback.message.edit_text(text='Рассылка отменена',
                                          reply_markup=None)
+    await callback.answer()

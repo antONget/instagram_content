@@ -4,7 +4,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.types import ErrorEvent
 
-from handlers import handler_main, handler_admin, other_handlers
+from handlers import handler_main, handler_admin, other_handlers, mailing
 from config_data.config import Config, load_config
 from database.models import async_main
 
@@ -39,6 +39,7 @@ async def main():
     # Регистрируем router в диспетчере
     dp.include_router(handler_main.router)
     dp.include_router(handler_admin.router)
+    dp.include_router(mailing.router)
     dp.include_router(other_handlers.router)
 
 

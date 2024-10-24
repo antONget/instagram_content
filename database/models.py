@@ -41,7 +41,7 @@ class Order(Base):
     tg_client: Mapped[int] = mapped_column(Integer)
     link_resource: Mapped[str] = mapped_column(String(200))
     tg_executor: Mapped[int] = mapped_column(Integer, default='0')
-    about_me: Mapped[str] = mapped_column(String)
+    about_me: Mapped[str] = mapped_column(String, default='about_me')
     type_public: Mapped[str] = mapped_column(String)
     type_content: Mapped[str] = mapped_column(String)
     content: Mapped[str] = mapped_column(String)

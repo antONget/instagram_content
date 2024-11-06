@@ -348,11 +348,15 @@ async def check_pay(callback: CallbackQuery, state: FSMContext, bot: Bot):
             content = list_content[0]
         else:
             content = ','.join(list_content)
+        if data["about_me"]:
+            about_me = data["about_me"]
+        else:
+            about_me = "about_me"
         data_order = {"status": rq.OrderStatus.payment,
                       "data_create": datetime.today().strftime('%H/%M/%S/%d/%m/%Y'),
                       "tg_client": callback.message.chat.id,
                       "link_resource": user_info.link_resource,
-                      "about_me": data["about_me"],
+                      "about_me": about_me,
                       "type_public": data["type_public"],
                       "type_content": data["type_content"],
                       "content": content,
